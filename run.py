@@ -54,7 +54,7 @@ def test_f(args, y, output):
 with tf.Session() as sess:
     saver = tf.train.Saver(tf.global_variables())
     tf.global_variables_initializer().run()
-    train_writer = tf.summary.FileWriter(iv.tensorboard_dir+'/'+'mann', sess.graph)
+    train_writer = tf.summary.FileWriter(iv.tensorboard_dir, sess.graph)
     print(iv)
     print("1st\t2nd\t3rd\t4th\t5th\t6th\t7th\t8th\t9th\t10th\tbatch\tloss")
 
