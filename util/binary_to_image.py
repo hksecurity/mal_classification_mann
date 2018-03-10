@@ -217,7 +217,7 @@ import cv2
 #         # sp = save_folder+filename+'.png'
 #         # print(path)
 #         misc.imsave(sp2, g)
-#         print('complete', count, '/', '1240')
+#         print('complete', count, '/', '1200')
 #         count = count + 1
 
 
@@ -242,7 +242,7 @@ import cv2
 #         sp2 = os.path.join(save_folder, category, filename)
 #         # sp_t = os.path.join(save_folder, filename + '.png')
 #         cv2.imwrite(sp2, im_bw)
-#         print('complete', count, '/1240')
+#         print('complete', count, '/1200')
 #         count = count + 1
 
 

@@ -16,7 +16,7 @@ def loadTrainData(fname):
 
 train, train_labels = loadTrainData(npz_file)
 
-(trainData, testData, trainLabels, testLabels) = train_test_split(train, train_labels, test_size=0.25, random_state=42)
+(trainData, testData, trainLabels, testLabels) = train_test_split(train, train_labels, test_size=0.5, random_state=42)
 (trainData, valData, trainLabels, valLabels) = train_test_split(trainData, trainLabels, test_size=0.1, random_state=84)
 
 print("training data points: {}".format(len(trainLabels)))

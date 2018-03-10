@@ -29,7 +29,7 @@ def loadTrainData(fname):
 
 train, train_labels = loadTrainData(npz_file)
 
-(trainData, testData, trainLabels, testLabels) = train_test_split(train, train_labels, test_size=0.25, random_state=42)
+(trainData, testData, trainLabels, testLabels) = train_test_split(train, train_labels, test_size=0.5, random_state=42)
 
 X = tf.placeholder(tf.float32, [None, 400])
 Y = tf.placeholder(tf.float32, [None, nb_classes])
