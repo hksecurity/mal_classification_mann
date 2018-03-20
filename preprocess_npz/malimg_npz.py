@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 
-FNAME = 'E:/Works/Data/paper/malimg/npz/malimg100.npz'
+FNAME = 'E:/Works/Data/paper/malimg/npz/malimg.npz'
 
 def learningDigit(image_folder):
 
