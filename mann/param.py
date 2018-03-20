@@ -7,7 +7,7 @@ class init_value:
         self.read_head_num = 4
         self.batch_size = 16
         self.insts_size = 400
-        self.num_epoches = 100000
+        self.num_epoches = 50000
         self.learning_rate = 1e-3
         self.rnn_size = 200
         self.rnn_num_layers = 1
