@@ -61,7 +61,7 @@ def random_class(train, train_labels, train_size = 0.3):
     new_test = np.array(new_test)
     new_test_labels = np.array(new_test_labels)
 
-    print(np.shape(new_train))
+    #print(np.shape(new_train))
 
     return new_train, new_test, new_train_labels, new_test_labels
 
@@ -96,6 +96,28 @@ cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=model, labe
 optimizer = tf.train.AdamOptimizer(0.0001).minimize(cost)
 
 
+def test_f(y, output):
+    correct = [0] * 50
+    total = [0] * 50
+    y_decode = y
+    output_decode = output
+
+    # print(np.shape(y)[0])
+
+    for i in range(np.shape(y)[0]):
+        y_i = y_decode[i]
+        output_i = output_decode[i]
+        class_count = {}
+        for j in range(50):
+            if y_i[j] not in class_count:
+                class_count[y_i[j]] = 0
+            class_count[y_i[j]] += 1
+            total[class_count[y_i[j]]] += 1
+            if y_i[j] == output_i[j]:
+                correct[class_count[y_i[j]]] += 1
+
+    return [float(correct[i]) / total[i] if total[i] > 0. else 0. for i in range(1, 11)]
+
 #  STRART!!!
 
 print("training data points: {}".format(len(trainLabels)))
@@ -105,16 +127,55 @@ init = tf.global_variables_initializer()
 sess = tf.Session()
 sess.run(init)
 
-batch_size = 20
+batch_size = 16
 num_samples = len(trainData)
 
 total_batch = int(num_samples / batch_size)
 batch_pointer = batch_size
 
-for epoch in range(100):
+for epoch in range(10000):
     total_cost = 0
 
+    if epoch % 10 == 0:
+
+        output = tf.argmax(model, 1)
+        y_output = tf.argmax(Y, 1)
+
+        # accuracy = test_f(y_output, output)
+        output = sess.run(output, feed_dict={X: testData, Y: testLabels})
+        y_output = sess.run(y_output, feed_dict={X: testData, Y: testLabels})
+
+        class_key_list = list()
+        for i in range(len(output)):
+            class_key_list.append(i)
+
+        new_output = list()
+        new_y_output = list()
+
+        for b in range(16):
+            random.shuffle(class_key_list)
+            temp_list = list()
+            temp_y_list = list()
+
+            for key in class_key_list:
+                if len(temp_list) <50:
+                    temp_list.append(output[key])
+                    temp_y_list.append(y_output[key])
+
+            new_output.append(temp_list)
+            new_y_output.append(temp_y_list)
+
+        # print(np.shape(new_output))
+        accuracy = test_f(new_output, new_y_output)
+
+        for accu in accuracy:
+            print('%.4f' % accu, end='\t')
+        print('%d' % epoch)
+
+
+
     for i in range(total_batch):
+
         batch_xs = trainData[:batch_pointer]
         batch_ys = trainLabels[:batch_pointer]
 
@@ -126,9 +187,36 @@ for epoch in range(100):
     print('Epoch:', '%04d' % (epoch + 1),
           'Avg. cost =', '{:.10f}'.format(total_cost / total_batch))
 
-print('최적화 완료!')
 
 is_correct = tf.equal(tf.argmax(model, 1), tf.argmax(Y, 1))
+output = tf.argmax(model, 1)
+y_output = tf.argmax(Y, 1)
+# print('model', model)
+# print('sess.run', sess.run(model, feed_dict={X: testData, Y: testLabels}))
+# print('is_correct', is_correct)
+ # print('output', sess.run(output, feed_dict={X: testData, Y: testLabels}))
+
+output = sess.run(output, feed_dict={X: testData, Y: testLabels})
+y_output = sess.run(y_output, feed_dict={X: testData, Y: testLabels})
+# print('output', np.shape(output))
+# print('y_output', np.shape(y_output))
+
+# print('y_output', sess.run(y_output, feed_dict={X: testData,
+#                                    Y: testLabels}))
+# print('sess.run2', sess.run(is_correct, feed_dict={X: testData,
+#                                    Y: testLabels}))
+#
+#
+# output2 = tf.Print(output, [output], message="output: ")
+# print(output2)
+# output = tf.argmax(model, 1)
+
+# y_output = tf.argmax(Y, 1)
+# y_output = tf.Print(y_output, [y_output], message="y_output: ")
+# sess.run(output, feed_dict={X: testData, Y: testLabels})
+# sess.run(y_output, feed_dict={X: testData, Y: testLabels})
+# is_correct = tf.Print(is_correct, len([is_correct]), message="test ")
+# sess.run(is_correct, feed_dict={X: testData, Y: testLabels})
 accuracy = tf.reduce_mean(tf.cast(is_correct, tf.float32))
 print('정확도:', sess.run(accuracy,
                         feed_dict={X: testData,
