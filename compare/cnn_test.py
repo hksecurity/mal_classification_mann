@@ -10,6 +10,9 @@ import random
 npz_file = '../data/mal60.npz'
 nb_classes = 60
 
+batch_size = 16
+sample_count = 50
+
 def one_hot_encode(data):
 
     targets = data.reshape(-1)
@@ -62,7 +65,7 @@ def random_class(train, train_labels, train_size = 0.3):
     new_test = np.array(new_test)
     new_test_labels = np.array(new_test_labels)
 
-    print(np.shape(new_train))
+    # print(np.shape(new_train))
 
     return new_train, new_test, new_train_labels, new_test_labels
 
@@ -76,6 +79,31 @@ def loadTrainData(fname):
         train_labels = one_hot_encode(train_labels)
 
     return train, train_labels
+
+
+def test_f(y, output):
+    correct = [0] * sample_count
+    total = [0] * sample_count
+    y_decode = y
+    output_decode = output
+
+    # print(np.shape(y)[0])
+
+    for i in range(np.shape(y)[0]):
+        y_i = y_decode[i]
+        output_i = output_decode[i]
+        class_count = {}
+        for j in range(sample_count):
+            if y_i[j] not in class_count:
+                class_count[y_i[j]] = 0
+            class_count[y_i[j]] += 1
+            total[class_count[y_i[j]]] += 1
+            if y_i[j] == output_i[j]:
+                correct[class_count[y_i[j]]] += 1
+
+    return [float(correct[i]) / total[i] if total[i] > 0. else 0. for i in range(1, 11)]
+
+
 
 data, data_labels = loadTrainData(npz_file)
 
@@ -125,6 +153,44 @@ batch_pointer = batch_size
 
 for epoch in range(100):
     total_cost = 0
+
+    if epoch % 10 == 0:
+
+        output = tf.argmax(model, 1)
+        y_output = tf.argmax(Y, 1)
+    #
+    #     # accuracy = test_f(y_output, output)
+        output = sess.run(output, feed_dict={X: testData.reshape(-1, 20, 20, 1), Y: testLabels, keep_prob: 1})
+        y_output = sess.run(y_output, feed_dict={X: testData.reshape(-1, 20, 20, 1), Y: testLabels, keep_prob: 1})
+
+        # print(np.shape(output))
+
+        class_key_list = list()
+        for i in range(len(output)):
+            class_key_list.append(i)
+
+        new_output = list()
+        new_y_output = list()
+
+        for b in range(batch_size):
+            random.shuffle(class_key_list)
+            temp_list = list()
+            temp_y_list = list()
+
+            for key in class_key_list:
+                if len(temp_list) < sample_count:
+                    temp_list.append(output[key])
+                    temp_y_list.append(y_output[key])
+
+            new_output.append(temp_list)
+            new_y_output.append(temp_y_list)
+
+        # print(np.shape(new_output))
+        accuracy = test_f(new_output, new_y_output)
+
+        for accu in accuracy:
+            print('%.4f' % accu, end='\t')
+        print('%d' % epoch)
 
     for i in range(total_batch):
         batch_xs = trainData[:batch_pointer]

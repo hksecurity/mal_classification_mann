@@ -39,11 +39,6 @@ def test_f(args, y, output):
     y_decode = util.one_hot_decode(y)
     output_decode = util.one_hot_decode(output)
 
-    print(np.shape(y_decode))
-    # print(output_decode)
-    print(np.shape(output_decode))
-    print(np.shape(y)[0])
-
     for i in range(np.shape(y)[0]):
         y_i = y_decode[i]
         output_i = output_decode[i]

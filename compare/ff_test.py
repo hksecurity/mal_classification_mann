@@ -5,10 +5,12 @@ import random
 
 # npz_file = 'data/mnist.npz'
 # nb_classes = 10
-# npz_file = 'data/malimg.npz'
-# nb_classes = 25
-npz_file = '../data/mal60.npz'
-nb_classes = 60
+npz_file = '../data/malimg.npz'
+nb_classes = 25
+# npz_file = '../data/mal60.npz'
+# nb_classes = 60
+batch_size = 16
+sample_count = 50
 
 def one_hot_encode(data):
 
@@ -93,12 +95,12 @@ W3 = tf.Variable(tf.random_normal([256, nb_classes], stddev=0.01))
 model = tf.matmul(L2, W3)
 
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=model, labels=Y))
-optimizer = tf.train.AdamOptimizer(0.0001).minimize(cost)
+optimizer = tf.train.AdamOptimizer(0.001).minimize(cost)
 
 
 def test_f(y, output):
-    correct = [0] * 50
-    total = [0] * 50
+    correct = [0] * sample_count
+    total = [0] * sample_count
     y_decode = y
     output_decode = output
 
@@ -108,7 +110,7 @@ def test_f(y, output):
         y_i = y_decode[i]
         output_i = output_decode[i]
         class_count = {}
-        for j in range(50):
+        for j in range(sample_count):
             if y_i[j] not in class_count:
                 class_count[y_i[j]] = 0
             class_count[y_i[j]] += 1
@@ -127,13 +129,12 @@ init = tf.global_variables_initializer()
 sess = tf.Session()
 sess.run(init)
 
-batch_size = 16
 num_samples = len(trainData)
 
 total_batch = int(num_samples / batch_size)
 batch_pointer = batch_size
 
-for epoch in range(10000):
+for epoch in range(100):
     total_cost = 0
 
     if epoch % 10 == 0:
@@ -152,13 +153,13 @@ for epoch in range(10000):
         new_output = list()
         new_y_output = list()
 
-        for b in range(16):
+        for b in range(batch_size):
             random.shuffle(class_key_list)
             temp_list = list()
             temp_y_list = list()
 
             for key in class_key_list:
-                if len(temp_list) <50:
+                if len(temp_list) < sample_count:
                     temp_list.append(output[key])
                     temp_y_list.append(y_output[key])
 
@@ -171,8 +172,6 @@ for epoch in range(10000):
         for accu in accuracy:
             print('%.4f' % accu, end='\t')
         print('%d' % epoch)
-
-
 
     for i in range(total_batch):
 
