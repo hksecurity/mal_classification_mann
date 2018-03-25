@@ -2,7 +2,11 @@ import numpy as np
 import tensorflow as tf
 from mann import cell
 
+
 class memory_augmented_neural_networks():
+    def rnn_cell(self, rnn_size):
+        return tf.nn.rnn_cell.BasicLSTMCell(rnn_size)
+
     def __init__(self, values):
         values.output_dim = values.n_classes
 
@@ -15,16 +19,23 @@ class memory_augmented_neural_networks():
         self.y = tf.placeholder(dtype=tf.float32, shape=[values.batch_size,
                                                          values.seq_length,
                                                          values.output_dim])
+        if values.celltype == 'lstm':
+            rnn_s = values.rnn_size
+            rnn_nl = values.rnn_num_layers
+            c_cell = tf.nn.rnn_cell.MultiRNNCell([self.rnn_cell(rnn_s) for _ in range(rnn_nl)])
 
-        mann_cell = cell.mann_cell(values.rnn_size,
-                                   values.memory_size,
-                                   values.memory_vector_dim,
-                                   head_num=values.read_head_num)
-        state = mann_cell.zero_state(values.batch_size, tf.float32)
+        if values.celltype == 'mann':
+            c_cell = cell.mann_cell(values.rnn_size,
+                                       values.memory_size,
+                                       values.memory_vector_dim,
+                                       head_num=values.read_head_num)
+        state = c_cell.zero_state(values.batch_size, tf.float32)
+
         self.state_list = [state]
         self.o = []
         for seq in range(values.seq_length):
-            output, state = mann_cell(tf.concat([self.x_inst[:, seq, :], self.x_label[:, seq, :]], axis=1), state)
+            output, state = c_cell(tf.concat([self.x_inst[:, seq, :], self.x_label[:, seq, :]], axis=1), state)
+
             with tf.variable_scope("o2o", reuse=(seq > 0)):
                 o2o_w = tf.get_variable('o2o_w', [output.get_shape()[1], values.output_dim],
                                         initializer=tf.random_uniform_initializer(minval=-0.1, maxval=0.1))
@@ -45,13 +56,6 @@ class memory_augmented_neural_networks():
         self.learning_loss = -tf.reduce_mean(  # cross entropy function
             tf.reduce_sum(self.y * tf.log(self.o + eps), axis=[1, 2])
         )
-
-        # self.learning_loss = -tf.reduce_mean(self.y * tf.log(tf.clip_by_value(self.o, eps, 1.0)) + (1-self.y) * tf.log(tf.clip_by_value(self.o, eps, 1.0)))
-
-        # self.learning_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=self.o))
-        # updates = tf.train.GradientDescentOptimizer(0.01).minimize(cost)
-        # cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=output_var, labels=target_ph_oh),
-        #                       name="cost")
 
         self.o = tf.reshape(self.o, shape=[values.batch_size, values.seq_length, -1])
         self.learning_loss_summary = tf.summary.scalar('learning_loss', self.learning_loss)

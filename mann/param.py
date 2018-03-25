@@ -7,7 +7,7 @@ class init_value:
         self.read_head_num = 4
         self.batch_size = 16
         self.insts_size = 400
-        self.num_epoches = 50000
+        self.num_epoches = 10000
         self.learning_rate = 1e-3
         self.rnn_size = 200
         self.rnn_num_layers = 1
@@ -15,6 +15,8 @@ class init_value:
         self.memory_vector_dim = 40
         self.model_dir = 'model'
         self.tensorboard_dir = 'tensorboard'
+        # self.celltype = 'lstm'
+        self.celltype = 'lstm'
 
         self.image_width = 20
         self.image_height = 20

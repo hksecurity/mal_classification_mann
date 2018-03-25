@@ -5,12 +5,13 @@ import random
 
 # npz_file = 'data/mnist.npz'
 # nb_classes = 10
-npz_file = '../data/malimg.npz'
-nb_classes = 25
-# npz_file = '../data/mal60.npz'
-# nb_classes = 60
+# npz_file = '../data/malimg.npz'
+# nb_classes = 25
+npz_file = '../data/mal60.npz'
+nb_classes = 60
 batch_size = 16
 sample_count = 50
+total_epoch = 10000
 
 def one_hot_encode(data):
 
@@ -133,8 +134,10 @@ num_samples = len(trainData)
 
 total_batch = int(num_samples / batch_size)
 batch_pointer = batch_size
+before_batch_pointer = 0
+print(total_batch)
 
-for epoch in range(100):
+for epoch in range(total_epoch):
     total_cost = 0
 
     if epoch % 10 == 0:
@@ -175,13 +178,16 @@ for epoch in range(100):
 
     for i in range(total_batch):
 
-        batch_xs = trainData[:batch_pointer]
-        batch_ys = trainLabels[:batch_pointer]
+        batch_xs = trainData[before_batch_pointer:batch_pointer]
+        batch_ys = trainLabels[before_batch_pointer:batch_pointer]
 
         _, cost_val = sess.run([optimizer, cost], feed_dict={X: batch_xs, Y: batch_ys})
         total_cost += cost_val
 
         batch_pointer = batch_pointer + batch_size
+
+    before_batch_pointer = 0
+    batch_pointer = batch_size
 
     print('Epoch:', '%04d' % (epoch + 1),
           'Avg. cost =', '{:.10f}'.format(total_cost / total_batch))

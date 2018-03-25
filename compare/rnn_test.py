@@ -4,15 +4,15 @@ import random
 
 # npz_file = '../data/mnist.npz'
 # nb_classes = 10
-# npz_file = 'data/malimg.npz'
+# npz_file = '../data/malimg.npz'
 # nb_classes = 25
 npz_file = '../data/mal60.npz'
 nb_classes = 60
 sample_count = 50
 
-learning_rate = 0.0001
-total_epoch = 100
-batch_size = 16
+learning_rate = 0.001
+total_epoch = 100000
+batch_size = 128
 
 n_input = 20
 n_step = 20
@@ -133,13 +133,19 @@ optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 data, data_labels = loadTrainData(npz_file)
 (trainData, testData, trainLabels, testLabels) = random_class(data, data_labels)
 
+# print(np.shape(trainData))
+# print(np.shape(trainLabels))
+# print(np.shape(testData))
+# print(np.shape(testLabels))
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 num_samples = len(trainData)
 batch_pointer = batch_size
+before_batch_pointer = 0
 
 total_batch = int(num_samples / batch_size)
+# print('total_batch', total_batch)
 
 for epoch in range(total_epoch):
     total_cost = 0
@@ -150,8 +156,9 @@ for epoch in range(total_epoch):
         y_output = tf.argmax(Y, 1)
         test_batch_size = len(testLabels)
         test_xs = testData.reshape(test_batch_size, n_step, n_input)
-        output = sess.run(output, feed_dict={X: test_xs, Y: testLabels})
-        y_output = sess.run(y_output, feed_dict={X: test_xs, Y: testLabels})
+        test_ys = testLabels
+        output = sess.run(output, feed_dict={X: test_xs, Y: test_ys})
+        y_output = sess.run(y_output, feed_dict={X: test_xs, Y: test_ys})
         # print(np.shape(output))
 
         class_key_list = list()
@@ -182,15 +189,24 @@ for epoch in range(total_epoch):
         print('%d' % epoch)
 
     for i in range(total_batch):
-        batch_xs = trainData[:batch_pointer]
-        batch_ys = trainLabels[:batch_pointer]
+        batch_xs = trainData[before_batch_pointer:batch_pointer]
+        batch_ys = trainLabels[before_batch_pointer:batch_pointer]
+        # print('batch_xs', i, before_batch_pointer, batch_pointer, np.shape(batch_xs))
+        # print('batch_xs', np.shape(batch_xs))
+        # print('batch_ys', np.shape(batch_ys))
         batch_xs = batch_xs.reshape((batch_size, n_step, n_input))
+        # print('after batch_xs', np.shape(batch_xs))
 
         _, cost_val = sess.run([optimizer, cost], feed_dict={X: batch_xs, Y: batch_ys})
         total_cost += cost_val
+        before_batch_pointer = batch_pointer
+        batch_pointer = batch_pointer + batch_size
+
+    before_batch_pointer = 0
+    batch_pointer = batch_size
 
     print('Epoch:', '%04d' % (epoch + 1),
-          'Avg. cost =', '{:.3f}'.format(total_cost / total_batch))
+          'Avg. cost =', '{:.4f}'.format(total_cost / total_batch))
 
 print('최적화 완료!')
 
@@ -198,18 +214,13 @@ print('최적화 완료!')
 is_correct = tf.equal(tf.argmax(model, 1), tf.argmax(Y, 1))
 accuracy = tf.reduce_mean(tf.cast(is_correct, tf.float32))
 
-# from tensorflow.examples.tutorials.mnist import input_data
-# mnist = input_data.read_data_sets("./mnist/data/", one_hot=True)
-
-# print('test', len(testData))
-# print('train', len(trainData))
-
 test_batch_size = len(testLabels)
 # print(test_batch_size)
 test_xs = testData.reshape(test_batch_size, n_step, n_input)
 test_ys = testLabels
 
-# print('xs, shape', np.shape(test_xs))
-# print('ys, shape', np.shape(test_ys))
+print('test_batch_size', test_batch_size)
+print('test_xs', np.shape(test_xs))
+print('test_ys', np.shape(test_ys))
 
 print('정확도:', sess.run(accuracy, feed_dict={X: test_xs, Y: test_ys}))

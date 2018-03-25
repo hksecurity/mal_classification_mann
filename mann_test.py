@@ -17,9 +17,9 @@ data_directory = 'data/mal60'
 
 files_path = os.path.join(current_directory, data_directory)
 
-nb_samples_per_class = 10
-batch_size = 16
-nb_class = 5
+# nb_samples_per_class = 10
+# batch_size = 16
+# nb_class = 5
 # generator = util.TestGenerator(data_folder=files_path, batch_size=batch_size, nb_samples=nb_class,
 #                               nb_samples_per_class=nb_samples_per_class, max_rotation=0., max_shift=0.,
 #                               max_iter=None)
@@ -123,12 +123,12 @@ with tf.Session() as sess:
 
             print('%d\t%.4f' % (b, learning_loss))
 
-            # Saving
-            if b % 5000 == 0 and b > 0:
-                saver.save(sess, iv.model_dir + '/' + 'mann.tfmodel', global_step=b)
+        # Saving
+        if b % 5000 == 0 and b > 0:
+            saver.save(sess, iv.model_dir + '/' + 'mann.tfmodel', global_step=b)
 
-            # Training
-            x_inst, x_label, y = data_loader.fetch_batch(iv.n_classes, iv.batch_size, iv.seq_length, type='train')
-            feed_dict = {mann.x_inst: x_inst, mann.x_label: x_label, mann.y: y}
-            sess.run(mann.train_op, feed_dict=feed_dict)
-            # print('Step', b)
+        # Training
+        x_inst, x_label, y = data_loader.fetch_batch(iv.n_classes, iv.batch_size, iv.seq_length, type='train')
+        feed_dict = {mann.x_inst: x_inst, mann.x_label: x_label, mann.y: y}
+        sess.run(mann.train_op, feed_dict=feed_dict)
+        # print('Step', b)
