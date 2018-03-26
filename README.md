@@ -1,3 +1,6 @@
 # paper_code
 
-Ref. https://github.com/snowkylin/ntm
+One shot for Malware classification
+
+Memory Augmented Neural Network
+Ref. https://github.com/snowkylin

@@ -12,8 +12,8 @@ iv = param.init_value()
 mann = model.memory_augmented_neural_networks(iv)
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
-data_directory = 'data/mal60'
-# data_directory = 'data/malimg'
+# data_directory = 'data/mal60'
+data_directory = 'data/malimg'
 
 files_path = os.path.join(current_directory, data_directory)
 

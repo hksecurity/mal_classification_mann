@@ -140,7 +140,7 @@ print(total_batch)
 for epoch in range(total_epoch):
     total_cost = 0
 
-    if epoch % 10 == 0:
+    if epoch % 100 == 0:
 
         output = tf.argmax(model, 1)
         y_output = tf.argmax(Y, 1)
@@ -189,7 +189,8 @@ for epoch in range(total_epoch):
     before_batch_pointer = 0
     batch_pointer = batch_size
 
-    print('Epoch:', '%04d' % (epoch + 1),
+    if epoch % 100 == 0:
+        print('Epoch:', '%04d' % (epoch + 1),
           'Avg. cost =', '{:.10f}'.format(total_cost / total_batch))
 
 
