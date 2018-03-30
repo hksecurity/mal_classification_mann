@@ -5,10 +5,10 @@ import random
 
 # npz_file = 'data/mnist.npz'
 # nb_classes = 10
-# npz_file = '../data/malimg.npz'
-# nb_classes = 25
-npz_file = '../data/mal60.npz'
-nb_classes = 60
+npz_file = '../data/malimg.npz'
+nb_classes = 25
+# npz_file = '../data/mal60.npz'
+# nb_classes = 60
 batch_size = 16
 sample_count = 50
 total_epoch = 10000

@@ -53,22 +53,6 @@ def test_f(args, y, output):
             if y_i[j] == output_i[j]:
                 correct[class_count[y_i[j]]] += 1
 
-    #        print('class_count', class_count)
-    #        print('correct', correct)
-    #        print('total', total)
-
-    #    print('last correct: ',i, ' correct ', correct)
-    #
-    # test = list()
-    #
-    # for i in range(1, 11):
-    #     if total[i] > 0. :
-    #         test.append(float(correct[i]) / total[i])
-    #     else :
-    #         test.append(0.)
-
-    # print('accuracy', [float(correct[i]) / total[i] if total[i] > 0. else 0. for i in range(1, 11)])
-    # print('accuracy2', test)
     return [float(correct[i]) / total[i] if total[i] > 0. else 0. for i in range(1, 11)]
 
 
@@ -78,6 +62,7 @@ def test_f2(args, y, output):
 
     label_list = list()
     prediction_list = list()
+    fi = open("./f_measure", 'a')
 
     for i in range(np.shape(y)[0]):
         y_i = y_decode[i]
@@ -85,10 +70,17 @@ def test_f2(args, y, output):
         label_list.extend(y_i)
         prediction_list.extend(output_i)
 
-    # print(confusion_matrix(label_list, prediction_list))
-    # print(classification_report(label_list, prediction_list))
+    # print(label_list)
+    # print(prediction_list)
+    try:
+        print(confusion_matrix(label_list, prediction_list))
+        print(classification_report(label_list, prediction_list))
+        fi.write(str(confusion_matrix(label_list, prediction_list)) + '\n')
+        fi.write(str(classification_report(label_list, prediction_list)) + '\n\n')
+    except:
+        print('error')
 
-
+    fi.close()
     # fpr1, tpr1, thresholds1 = roc_curve(label_list, prediction_list)
     # print('auc', auc(fpr1, tpr1))
 
@@ -105,9 +97,13 @@ with tf.Session() as sess:
     train_writer = tf.summary.FileWriter(iv.tensorboard_dir+'/'+'mann', sess.graph)
     print("1st\t2nd\t3rd\t4th\t5th\t6th\t7th\t8th\t9th\t10th\tbatch\tloss")
 
+    f = open("./f_measure", 'w')
+    f.close()
+
     for b in range(iv.num_epoches):
         # Result Test
         if b % 100 == 0:
+
             x_inst, x_label, y = data_loader.fetch_batch(iv.n_classes, iv.batch_size, iv.seq_length, type='test')
             feed_dict = {mann.x_inst: x_inst, mann.x_label: x_label, mann.y: y}
             output, learning_loss = sess.run([mann.o, mann.learning_loss], feed_dict=feed_dict)
@@ -116,7 +112,7 @@ with tf.Session() as sess:
             # print('y', y)
             # print('output', output)
             accuracy = test_f(iv, y, output)
-            curve = test_f2(iv, y, output)
+            c = test_f2(iv, y, output)
 
             for accu in accuracy:
                 print('%.4f' % accu, end='\t')
@@ -132,3 +128,6 @@ with tf.Session() as sess:
         feed_dict = {mann.x_inst: x_inst, mann.x_label: x_label, mann.y: y}
         sess.run(mann.train_op, feed_dict=feed_dict)
         # print('Step', b)
+
+
+
