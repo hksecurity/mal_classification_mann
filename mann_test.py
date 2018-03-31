@@ -62,7 +62,7 @@ def test_f2(args, y, output):
 
     label_list = list()
     prediction_list = list()
-    fi = open("./f_measure", 'a')
+    # fi = open("./f_measure", 'a')
 
     for i in range(np.shape(y)[0]):
         y_i = y_decode[i]
@@ -75,12 +75,12 @@ def test_f2(args, y, output):
     try:
         print(confusion_matrix(label_list, prediction_list))
         print(classification_report(label_list, prediction_list))
-        fi.write(str(confusion_matrix(label_list, prediction_list)) + '\n')
-        fi.write(str(classification_report(label_list, prediction_list)) + '\n\n')
+        #fi.write(str(confusion_matrix(label_list, prediction_list)) + '\n')
+        #fi.write(str(classification_report(label_list, prediction_list)) + '\n\n')
     except:
         print('error')
 
-    fi.close()
+    # fi.close()
     # fpr1, tpr1, thresholds1 = roc_curve(label_list, prediction_list)
     # print('auc', auc(fpr1, tpr1))
 
@@ -97,8 +97,8 @@ with tf.Session() as sess:
     train_writer = tf.summary.FileWriter(iv.tensorboard_dir+'/'+'mann', sess.graph)
     print("1st\t2nd\t3rd\t4th\t5th\t6th\t7th\t8th\t9th\t10th\tbatch\tloss")
 
-    f = open("./f_measure", 'w')
-    f.close()
+    # f = open("./f_measure", 'w')
+    # f.close()
 
     for b in range(iv.num_epoches):
         # Result Test
