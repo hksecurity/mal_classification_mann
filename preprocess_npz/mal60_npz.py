@@ -22,7 +22,6 @@ def learningDigit(image_folder):
             im_bw = cv2.threshold(grayResize, thresh, 255, cv2.THRESH_BINARY)[1]
             im_bw = im_bw.flatten()
             value_list.append(im_bw)
-
     train = np.vstack(value_list)
 
     cate_list = list(set(label_list))
@@ -46,3 +45,30 @@ def loadTrainData(fname):
 
 # train, train_labels = loadTrainData(FNAME)
 # print(train)
+
+
+
+
+
+# grayScale
+def save_image(image_folder):
+    value_list = []
+    label_list = []
+    for (path, dir, files) in os.walk(image_folder):
+        for filename in files:
+            image_path = os.path.join(path, filename)
+            category = path.split('/')[-1]
+            label_list.append(category)
+
+            img = cv2.imread(image_path)
+            im_gray = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+            grayResize = cv2.resize(im_gray, (128, 128))
+            value_list.append(grayResize)
+
+    # data = np.vstack(value_list)
+    data = np.array(value_list)
+    labels = np.array(label_list)
+
+    np.savez(FNAME, data=data, labels=labels)
+    print(np.shape(data))
+    print(np.shape(labels))
